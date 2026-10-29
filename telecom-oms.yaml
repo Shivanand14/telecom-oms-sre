@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: telecom-oms
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-api
+  namespace: telecom-oms
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order-api
+  template:
+    metadata:
+      labels:
+        app: order-api
+    spec:
+      containers:
+      - name: api
+        image: order-api:local
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-api-service
+  namespace: telecom-oms
+  labels:
+    app: order-api
+    # 🌟 CRITICAL: This label tells Prometheus where to look
+    release: kube-prometheus-stack 
+spec:
+  ports:
+  - name: metrics-port  # 🌟 CRITICAL: Giving the port an explicit name
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: order-api
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cache-db
+  namespace: telecom-oms
+spec:
+  serviceName: "cache-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cache-db
+  template:
+    metadata:
+      labels:
+        app: cache-db
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"

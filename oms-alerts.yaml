@@ -1,0 +1,28 @@
+apiVersion: ://coreos.com
+kind: PrometheusRule
+metadata:
+  name: telecom-oms-alerts
+  namespace: monitoring
+  labels:
+    role: alert-rules
+spec:
+  groups:
+  - name: telecom-sla-alerts
+    rules:
+    - alert: LNPOrderDropSevere
+      expr: rate(telecom_orders_received_total{status="500"}[1m]) > 2
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: "Neustar OMS API Gateway dropoff"
+        description: "The system is dropping LNP requests with a 500 status code at a rate of {{ $value }} requests per second."
+
+    - alert: ProvisioningSlaBreach
+      expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 0.5
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "P95 order latency exceeds SLA limits"
+        description: "95% of orders are taking over 500ms to register state pipelines. Current value is {{ $value }}s."

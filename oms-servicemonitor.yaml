@@ -1,0 +1,23 @@
+apiVersion: ://coreos.com
+kind: ServiceMonitor
+metadata:
+  name: telecom-oms-monitor
+  namespace: monitoring # 🌟 Deploy this where your kube-prometheus-stack lives
+  labels:
+    # 🌟 CRITICAL: This label links the monitor to your Helm-deployed Prometheus operator
+    release: kube-prometheus-stack 
+spec:
+  # Allows Prometheus to find services outside of its own namespace
+  namespaceSelector:
+    matchNames:
+      - telecom-oms
+  # Finds the specific service target
+  selector:
+    matchLabels:
+      app: order-api
+  # Defines the scraping details
+  endpoints:
+  - port: metrics-port    # Must match the name given in your Service manifest
+    path: /metrics        # The endpoint where our Python app exposes metrics
+    interval: 15s         # Scrape frequency
+    scrapeTimeout: 10s
