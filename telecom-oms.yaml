@@ -40,11 +40,11 @@ metadata:
   labels:
     app: order-api
     # 🌟 CRITICAL: This label tells Prometheus where to look
-    release: kube-prometheus-stack 
+    release: kube-prometheus-stack
 spec:
   ports:
   - name: metrics-port  # 🌟 CRITICAL: Giving the port an explicit name
-  - port: 80
+    port: 80
     targetPort: 8080
   selector:
     app: order-api
