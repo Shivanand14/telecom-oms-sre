@@ -1,4 +1,4 @@
-# Neustar Order Management System (OMS) - Cloud Native Telecom Showcase
+# Telecom Order Management System (OMS) - Cloud Native Telecom Showcase
 
 A high-performance cloud-native microservices cluster recreating a **Local Number Portability (LNP)** order ingestion engine using an asynchronous orchestration workflow.
 
